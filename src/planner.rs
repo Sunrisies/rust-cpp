@@ -1,8 +1,8 @@
 // Rust-first path planning module.
 // C++ FFI is kept as a parity oracle in tests, not as the default planner path.
 
-use crate::types::*;
 use crate::geometry::*;
+use crate::types::*;
 
 const EARTH_RADIUS_M: f64 = 6.371_393e6;
 
@@ -81,14 +81,22 @@ fn plan_rust(
     // 4. 计算扫描线从下到上或从上到下的方向标志，保持 C++ 的 long_edge_yaw_flag 语义。
     let f2c = if (0.0..=90.0).contains(&yaw) || (270.0..=360.0).contains(&yaw) {
         if eq_eps_i32(params.long_edge_yaw_flag) != 0.0 {
-            if params.yaw >= 0.0 { 0.0 } else { 1.0 }
+            if params.yaw >= 0.0 {
+                0.0
+            } else {
+                1.0
+            }
         } else if params.yaw >= 0.0 {
             1.0
         } else {
             0.0
         }
     } else if eq_eps_i32(params.long_edge_yaw_flag) != 0.0 {
-        if params.yaw >= 0.0 { 1.0 } else { 0.0 }
+        if params.yaw >= 0.0 {
+            1.0
+        } else {
+            0.0
+        }
     } else if params.yaw >= 0.0 {
         0.0
     } else {
@@ -126,8 +134,16 @@ fn plan_rust(
     // 6. 多边形障碍处理。
     // C++ 主流程会先按 safe_dist_obs 对多边形障碍外扩，然后把障碍点投影并旋转到
     // 与航线相同的坐标系。这里保持相同顺序，避免后续绕行点和扫描坐标不一致。
-    let (polygons, states) =
-        build_rotated_polygons(pyg, params.safe_dist_obs, ref_lat, ref_lon, lat_r, map_offset, cos_yaw, sin_yaw);
+    let (polygons, states) = build_rotated_polygons(
+        pyg,
+        params.safe_dist_obs,
+        ref_lat,
+        ref_lon,
+        lat_r,
+        map_offset,
+        cos_yaw,
+        sin_yaw,
+    );
     if !polygons.is_empty() {
         planned_xy = pyg_obs_avoid(&planned_xy, &polygons, &states);
     }
@@ -175,7 +191,12 @@ fn plan_rust(
     }
 
     let wp_yaw = if flat_waypoints.len() >= 6 {
-        cal_yaw(flat_waypoints[0], flat_waypoints[1], flat_waypoints[3], flat_waypoints[4])
+        cal_yaw(
+            flat_waypoints[0],
+            flat_waypoints[1],
+            flat_waypoints[3],
+            flat_waypoints[4],
+        )
     } else {
         0.0
     };
@@ -252,10 +273,7 @@ pub(crate) fn build_rotated_polygons(
 }
 
 /// Generate coverage waypoints
-pub fn generate_coverage_waypoints(
-    _map: &MapData,
-    _params: &PlanningParams,
-) -> Vec<(f64, f64)> {
+pub fn generate_coverage_waypoints(_map: &MapData, _params: &PlanningParams) -> Vec<(f64, f64)> {
     // TODO: Implement coverage waypoint generation
     Vec::new()
 }
@@ -302,7 +320,12 @@ mod tests {
         };
 
         let shrunk = main_shr_out(&map.Lat[..4], &map.Lon[..4], params.safe_dist_map);
-        let map_ll: Vec<(f64, f64)> = shrunk.vertices.iter().take(shrunk.out_cnt).map(|p| (p[0], p[1])).collect();
+        let map_ll: Vec<(f64, f64)> = shrunk
+            .vertices
+            .iter()
+            .take(shrunk.out_cnt)
+            .map(|p| (p[0], p[1]))
+            .collect();
         let ref_lat = map_ll[0].0;
         let ref_lon = map_ll[0].1;
         let lat_r = EARTH_RADIUS_M * ref_lat.to_radians().cos();
@@ -336,14 +359,22 @@ mod tests {
             .collect();
         let f2c = if (0.0..=90.0).contains(&yaw) || (270.0..=360.0).contains(&yaw) {
             if eq_eps_i32(params.long_edge_yaw_flag) != 0.0 {
-                if params.yaw >= 0.0 { 0.0 } else { 1.0 }
+                if params.yaw >= 0.0 {
+                    0.0
+                } else {
+                    1.0
+                }
             } else if params.yaw >= 0.0 {
                 1.0
             } else {
                 0.0
             }
         } else if eq_eps_i32(params.long_edge_yaw_flag) != 0.0 {
-            if params.yaw >= 0.0 { 1.0 } else { 0.0 }
+            if params.yaw >= 0.0 {
+                1.0
+            } else {
+                0.0
+            }
         } else if params.yaw >= 0.0 {
             0.0
         } else {
@@ -351,7 +382,8 @@ mod tests {
         };
         let cover = cover_map_by_yaw(&rotated_map, params.width, yaw, f2c, params.dir);
         let path2: Vec<(f64, f64)> = cover.waypoints.iter().map(|p| (p[0], p[1])).collect();
-        let path3: Vec<(f64, f64, f64)> = cover.waypoints.iter().map(|p| (p[0], p[1], p[2])).collect();
+        let path3: Vec<(f64, f64, f64)> =
+            cover.waypoints.iter().map(|p| (p[0], p[1], p[2])).collect();
         let (polygons, states) = build_rotated_polygons(
             &pyg,
             params.safe_dist_obs,
@@ -368,7 +400,10 @@ mod tests {
 
         assert_eq!(rust_path.len(), cpp_count as usize);
         for (rust, cpp) in rust_path.iter().zip(cpp_path.iter()) {
-            assert!(same_point(*rust, *cpp), "rust {rust:?} != cpp {cpp:?}; rust_path={rust_path:?}; cpp_path={cpp_path:?}");
+            assert!(
+                same_point(*rust, *cpp),
+                "rust {rust:?} != cpp {cpp:?}; rust_path={rust_path:?}; cpp_path={cpp_path:?}"
+            );
         }
     }
 }

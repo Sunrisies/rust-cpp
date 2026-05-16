@@ -8,8 +8,18 @@ fn main() {
     println!("CoverMapObsPlan initialized");
 
     let mut map = MapData::default();
-    map.Lat[..4].copy_from_slice(&[32.22334642058298, 32.2233437078402, 32.222798651753514, 32.22279594140087]);
-    map.Lon[..4].copy_from_slice(&[119.42147511850712, 119.42215778901347, 119.42215459543166, 119.42128690768837]);
+    map.Lat[..4].copy_from_slice(&[
+        32.22334642058298,
+        32.2233437078402,
+        32.222798651753514,
+        32.22279594140087,
+    ]);
+    map.Lon[..4].copy_from_slice(&[
+        119.42147511850712,
+        119.42215778901347,
+        119.42215459543166,
+        119.42128690768837,
+    ]);
     map.Cnt = 4.0;
 
     let pyg = PolygonData::default();
@@ -26,7 +36,7 @@ fn main() {
 
     match plan(&map, &pyg, &mut obs, &params) {
         Ok(result) => {
-            println!("Planning succeeded{:?}",result);
+            println!("Planning succeeded{:?}", result);
             println!("waypoint_count={}", result.waypoint_count);
             println!("path_length={:.3}", result.path_length);
             println!("coverage_area={:.3}", result.coverage_area);

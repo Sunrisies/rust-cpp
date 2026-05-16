@@ -9,9 +9,9 @@ use std::os::raw::{c_double, c_int};
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct MapData {
-    pub Lat: [c_double; 200],  // Latitude values
-    pub Lon: [c_double; 200],  // Longitude values
-    pub Cnt: c_double,         // Number of points
+    pub Lat: [c_double; 200], // Latitude values
+    pub Lon: [c_double; 200], // Longitude values
+    pub Cnt: c_double,        // Number of points
 }
 
 impl Default for MapData {
@@ -28,11 +28,11 @@ impl Default for MapData {
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct PolygonData {
-    pub Lat: [c_double; 200],  // Latitude values
-    pub Lon: [c_double; 200],  // Longitude values
-    pub Pnt: [c_int; 200],    // Point indices
+    pub Lat: [c_double; 200],   // Latitude values
+    pub Lon: [c_double; 200],   // Longitude values
+    pub Pnt: [c_int; 200],      // Point indices
     pub State: [c_double; 200], // State values
-    pub Cnt: c_double,         // Number of polygons
+    pub Cnt: c_double,          // Number of polygons
 }
 
 impl Default for PolygonData {
@@ -51,10 +51,10 @@ impl Default for PolygonData {
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct ObstacleData {
-    pub Lat: [c_double; 50],   // Latitude values
-    pub Lon: [c_double; 50],   // Longitude values
-    pub R: [c_double; 50],     // Radius values
-    pub Cnt: c_double,        // Number of obstacles
+    pub Lat: [c_double; 50], // Latitude values
+    pub Lon: [c_double; 50], // Longitude values
+    pub R: [c_double; 50],   // Radius values
+    pub Cnt: c_double,       // Number of obstacles
 }
 
 impl Default for ObstacleData {
@@ -72,13 +72,13 @@ impl Default for ObstacleData {
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct PlanningParams {
-    pub width: c_double,              // Scan width
-    pub yaw: c_double,                // Yaw angle
-    pub dir: c_double,                // Direction
-    pub speed: c_double,              // Speed
-    pub safe_dist_obs: c_double,      // Safe distance from obstacles
-    pub safe_dist_map: c_double,      // Safe distance from map boundary
-    pub long_edge_yaw_flag: c_int,    // Long edge yaw flag
+    pub width: c_double,           // Scan width
+    pub yaw: c_double,             // Yaw angle
+    pub dir: c_double,             // Direction
+    pub speed: c_double,           // Speed
+    pub safe_dist_obs: c_double,   // Safe distance from obstacles
+    pub safe_dist_map: c_double,   // Safe distance from map boundary
+    pub long_edge_yaw_flag: c_int, // Long edge yaw flag
 }
 
 impl Default for PlanningParams {

@@ -1,5 +1,7 @@
-﻿use axum::{extract::Multipart, http::StatusCode, response::Json, routing::post, Router};
-use cover_map_obs_plan_rs::{initialize, plan, terminate, MapData, ObstacleData, PlanningParams, PolygonData};
+use axum::{extract::Multipart, http::StatusCode, response::Json, routing::post, Router};
+use cover_map_obs_plan_rs::{
+    initialize, plan, terminate, MapData, ObstacleData, PlanningParams, PolygonData,
+};
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 use std::sync::Mutex;
@@ -45,8 +47,9 @@ struct LonLatReq {
     lat: f64,
 }
 
-
-fn default_safe_dist() -> f64 { 0.0 }
+fn default_safe_dist() -> f64 {
+    0.0
+}
 
 // ─── 响应体 ───
 
@@ -166,7 +169,10 @@ fn run_planning(req: PlanRequest) -> (StatusCode, Json<PlanResponse>) {
     let list: Vec<Waypoint> = result
         .waypoint_points()
         .iter()
-        .map(|wp| Waypoint { lon: wp.lon, lat: wp.lat })
+        .map(|wp| Waypoint {
+            lon: wp.lon,
+            lat: wp.lat,
+        })
         .collect();
 
     let plan_result = PlanResult {
@@ -209,12 +215,18 @@ fn parse_val_as_f64(v: &serde_json::Value, key: &str) -> Option<f64> {
 
 async fn handle_multipart(mut multipart: Multipart) -> (StatusCode, Json<PlanResponse>) {
     let mut req = PlanRequest {
-        width: 0.0, yaw: 0.0,
+        width: 0.0,
+        yaw: 0.0,
         polygon: vec![],
-        speed: 1.0, dir: 1.0,
-        pyg_polygon: vec![], pyg_pnt_str: vec![], pyg_state_str: vec![],
-        obs_r_str: vec![], obs_center_str: vec![],
-        safe_dist_obs: 0.0, safe_dist_map: 0.0,
+        speed: 1.0,
+        dir: 1.0,
+        pyg_polygon: vec![],
+        pyg_pnt_str: vec![],
+        pyg_state_str: vec![],
+        obs_r_str: vec![],
+        obs_center_str: vec![],
+        safe_dist_obs: 0.0,
+        safe_dist_map: 0.0,
         long_edge_yaw_flag: 0,
     };
 
@@ -226,13 +238,21 @@ async fn handle_multipart(mut multipart: Multipart) -> (StatusCode, Json<PlanRes
                 Json(PlanResponse {
                     code: -1,
                     msg: Some(format!("Multipart parse error: {e}")),
-                    data: vec![], count: None, obj: None,
+                    data: vec![],
+                    count: None,
+                    obj: None,
                 }),
             );
         }
     } {
-        let name = match field.name() { Some(n) => n.to_string(), None => continue };
-        let text = match field.text().await { Ok(t) => t, Err(_) => continue };
+        let name = match field.name() {
+            Some(n) => n.to_string(),
+            None => continue,
+        };
+        let text = match field.text().await {
+            Ok(t) => t,
+            Err(_) => continue,
+        };
 
         match name.as_str() {
             "width" => req.width = text.parse().unwrap_or(0.0),
@@ -241,53 +261,70 @@ async fn handle_multipart(mut multipart: Multipart) -> (StatusCode, Json<PlanRes
             "dir" => req.dir = text.parse().unwrap_or(1.0),
             "safeDistObs" | "safe_dist_obs" => req.safe_dist_obs = text.parse().unwrap_or(0.0),
             "safeDistMap" | "safe_dist_map" => req.safe_dist_map = text.parse().unwrap_or(0.0),
-            "longEdgeYawFlag" | "long_edge_yaw_flag" => req.long_edge_yaw_flag = text.parse().unwrap_or(0),
+            "longEdgeYawFlag" | "long_edge_yaw_flag" => {
+                req.long_edge_yaw_flag = text.parse().unwrap_or(0)
+            }
             "polygon" => {
                 if let Ok(v) = serde_json::from_str::<Vec<serde_json::Value>>(&text) {
-                    req.polygon = v.iter().filter_map(|p| {
-                        Some(LatLonReq {
-                            lat: parse_val_as_f64(p, "lat")?,
-                            lon: parse_val_as_f64(p, "lon")?,
+                    req.polygon = v
+                        .iter()
+                        .filter_map(|p| {
+                            Some(LatLonReq {
+                                lat: parse_val_as_f64(p, "lat")?,
+                                lon: parse_val_as_f64(p, "lon")?,
+                            })
                         })
-                    }).collect();
+                        .collect();
                 }
             }
             "pygPolygon" | "pyg_polygon" => {
                 if !text.is_empty() && text != "[]" {
                     if let Ok(v) = serde_json::from_str::<Vec<serde_json::Value>>(&text) {
-                        req.pyg_polygon = v.iter().filter_map(|p| {
-                            Some(LonLatReq {
-                                lon: parse_val_as_f64(p, "lon")?,
-                                lat: parse_val_as_f64(p, "lat")?,
+                        req.pyg_polygon = v
+                            .iter()
+                            .filter_map(|p| {
+                                Some(LonLatReq {
+                                    lon: parse_val_as_f64(p, "lon")?,
+                                    lat: parse_val_as_f64(p, "lat")?,
+                                })
                             })
-                        }).collect();
+                            .collect();
                     }
                 }
             }
             "pygPntStr" | "pyg_pnt_str" => {
                 if !text.is_empty() && text != "[]" {
-                    if let Ok(v) = serde_json::from_str::<Vec<i32>>(&text) { req.pyg_pnt_str = v; }
+                    if let Ok(v) = serde_json::from_str::<Vec<i32>>(&text) {
+                        req.pyg_pnt_str = v;
+                    }
                 }
             }
             "pygStateStr" | "pyg_state_str" => {
                 if !text.is_empty() && text != "[]" {
-                    if let Ok(v) = serde_json::from_str::<Vec<f64>>(&text) { req.pyg_state_str = v; }
+                    if let Ok(v) = serde_json::from_str::<Vec<f64>>(&text) {
+                        req.pyg_state_str = v;
+                    }
                 }
             }
             "obsRStr" | "obs_r_str" => {
                 if !text.is_empty() && text != "[]" {
-                    if let Ok(v) = serde_json::from_str::<Vec<f64>>(&text) { req.obs_r_str = v; }
+                    if let Ok(v) = serde_json::from_str::<Vec<f64>>(&text) {
+                        req.obs_r_str = v;
+                    }
                 }
             }
             "obsCenterStr" | "obs_center_str" => {
                 if !text.is_empty() && text != "[]" {
                     if let Ok(v) = serde_json::from_str::<Vec<serde_json::Value>>(&text) {
-                        req.obs_center_str = v.iter().filter_map(|p| {
-                            Some(LonLatReq {
-                                lon: parse_val_as_f64(p, "lon")?,
-                                lat: parse_val_as_f64(p, "lat")?,
+                        req.obs_center_str = v
+                            .iter()
+                            .filter_map(|p| {
+                                Some(LonLatReq {
+                                    lon: parse_val_as_f64(p, "lon")?,
+                                    lat: parse_val_as_f64(p, "lat")?,
+                                })
                             })
-                        }).collect();
+                            .collect();
                     }
                 }
             }
@@ -305,13 +342,22 @@ async fn main() {
     let cors = CorsLayer::new()
         .allow_origin(AllowOrigin::mirror_request())
         .allow_methods([axum::http::Method::POST, axum::http::Method::OPTIONS])
-        .allow_headers([axum::http::header::CONTENT_TYPE, axum::http::header::AUTHORIZATION])
+        .allow_headers([
+            axum::http::header::CONTENT_TYPE,
+            axum::http::header::AUTHORIZATION,
+        ])
         .allow_credentials(true)
         .max_age(Duration::from_secs(86400));
 
     let app = Router::new()
-        .route("/mapobsplan/mapObsPlan/polygonPoint", post(handle_json).options(|| async { StatusCode::OK }))
-        .route("/mapobsplan/mapObsPlan/polygonPointForm", post(handle_multipart).options(|| async { StatusCode::OK }))
+        .route(
+            "/mapobsplan/mapObsPlan/polygonPoint",
+            post(handle_json).options(|| async { StatusCode::OK }),
+        )
+        .route(
+            "/mapobsplan/mapObsPlan/polygonPointForm",
+            post(handle_multipart).options(|| async { StatusCode::OK }),
+        )
         .layer(cors);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));

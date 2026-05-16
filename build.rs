@@ -6,9 +6,9 @@ fn main() {
     // Compile the C++ code
     let mut build = cc::Build::new();
     build
-        .cpp(true)  // Enable C++ support
-        .include("..")  // Include the parent directory for headers
-        .warnings(false);  // Disable warnings as errors for now
+        .cpp(true) // Enable C++ support
+        .include("..") // Include the parent directory for headers
+        .warnings(false); // Disable warnings as errors for now
 
     build.file("cpp_shim.cpp");
 

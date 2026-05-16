@@ -1,8 +1,8 @@
 // FFI bindings to C++ functions
 #![allow(dead_code, non_camel_case_types, non_snake_case)]
 
-use std::os::raw::{c_double, c_int};
 use crate::types::*;
+use std::os::raw::{c_double, c_int};
 
 // C ABI shim declarations. The shim is implemented in cpp_shim.cpp and calls
 // the original MATLAB Coder generated C++ functions.
@@ -332,7 +332,11 @@ pub fn run_cpp_main_shr_out(lat: &[f64], lon: &[f64], distance: f64) -> (Vec<[f6
 }
 
 #[cfg(test)]
-pub fn run_cpp_main_shr_out_expand(lat: &[f64], lon: &[f64], distance: f64) -> (Vec<[f64; 3]>, i32) {
+pub fn run_cpp_main_shr_out_expand(
+    lat: &[f64],
+    lon: &[f64],
+    distance: f64,
+) -> (Vec<[f64; 3]>, i32) {
     let mut lat_in = [0.0; 200];
     let mut lon_in = [0.0; 200];
     let len = lat.len().min(lon.len()).min(200);
@@ -421,4 +425,3 @@ pub fn run_planning(
         error_code: err,
     })
 }
-

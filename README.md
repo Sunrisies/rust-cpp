@@ -131,12 +131,12 @@ cargo test --test planning_smoke -- --nocapture
 
 ## 当前迁移进度
 
-按核心功能和验证覆盖估算，当前完成度约 **92%**：
+按核心功能和验证覆盖估算，当前完成度约 **96%**：
 
 - 已迁移并接入：主规划流程、地块偏移、扫描线覆盖、边界连接、圆形障碍物、多边形障碍物、基础混合障碍物。
-- 已验证：无障碍矩形地块、L 形凹地块、非相交圆、相交圆、双圆、圆边界端点、多圆同航段、非相交多边形、`State=0` 多边形、单多边形、双多边形、凹多边形、圆形+多边形混合障碍物、正/负 yaw、正/反 dir、safe_dist_map、safe_dist_obs。
-- 已通过：`cargo test`、`cargo clippy -- -D warnings`、`cargo build --release`。
-- 待继续：更多真实输入样例、性能和内存分配检查。
+- 已验证：无障碍矩形地块、用户真实输入样例、L 形凹地块、非相交圆、相交圆、双圆、圆边界端点、多圆同航段、非相交多边形、`State=0` 多边形、单多边形、双多边形、凹多边形、圆形+多边形混合障碍物、正/负 yaw、正/反 dir、safe_dist_map、safe_dist_obs。
+- 已通过：`cargo test`、`cargo clippy -- -D warnings`、`cargo check --bin cover_map_obs_plan_server`、`cargo build --release`。
+- 待继续：更多真实输入样例、性能和内存分配检查、发布说明整理。
 
 ## 注意事项
 
